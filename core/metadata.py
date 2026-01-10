@@ -117,5 +117,5 @@ class FeatureRegistry:
 
         for (key, _), spec in self._store.items():
             graph[key] = spec.dependencies
-
+            
         return graph
