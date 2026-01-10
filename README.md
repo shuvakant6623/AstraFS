@@ -1,113 +1,198 @@
-# AstraFS
+# 🚀 AstraFS
+A Compiler-Driven Feature Store for Consistent ML Systems
 
-## A Compiler-Driven Feature Store for Consistent ML Systems
+AstraFS is a compiler-driven, strongly-typed, time-aware feature store designed to guarantee correctness, determinism, and offline–online consistency in machine learning systems.
 
-AstraFS is a feature store designed to **guarantee correctness, consistency, and reuse of machine learning features** across training and serving by compiling feature definitions into a single, optimized execution plan.
+Instead of treating features as database columns or ad-hoc Python functions, AstraFS treats features as first-class programs that are typed, versioned, and governed — and eventually compiled into deterministic execution plans.
 
-This project is being built incrementally with a strong focus on **ML systems, compiler-inspired design, and production guarantees** rather than quick experimentation.
-
+This project is being built incrementally with a strong focus on ML systems, compiler-inspired design, and production-grade guarantees.
 ---
-
 ## 🚩 Motivation
 
 In real-world ML systems, feature computation logic is often:
-- Duplicated across training and inference
-- Rewritten in different languages and pipelines
-- Difficult to audit, version, or optimize
 
-This leads to **training–serving skew**, **feature leakage**, and **silent model degradation**.
+Duplicated across training and inference
 
-AstraFS exists to solve this class of problems by treating feature computation as a **first-class, compilable system**, not ad-hoc code.
+Rewritten in different languages and pipelines
 
+Difficult to audit, version, or reason about
+
+This leads to:
+
+Training–serving skew
+
+Feature leakage
+
+Silent model degradation
+
+Non-reproducible experiments
+
+AstraFS exists to solve this class of problems by treating feature computation as a typed, time-aware, compilable system rather than scattered code.
 ---
-
 ## 🧠 Core Idea
 
-> A feature store is not just storage for features —  
-> it is a system that enforces **correctness guarantees**.
+A feature store is not just a storage system —
+it is a correctness system.
 
-AstraFS enforces these guarantees by:
-- Making feature definitions **explicit and time-aware**
-- Ensuring the **same logic** powers both offline and online computation
-- Representing feature computation as a **dependency graph**
-- Preparing for compiler-style optimization and lowering
+AstraFS enforces correctness by:
 
+Making every feature time-aware
+
+Giving every feature an explicit schema and owner
+
+Ensuring the same definition is used for both training and serving
+
+Preparing feature graphs for compiler-style analysis and optimization
 ---
-
 ## 🔑 System Invariants (Non-Negotiable)
 
-The following invariants guide every design decision in AstraFS:
+Every layer of AstraFS is designed around these invariants:
 
-1. **Time Awareness**  
-   Every feature must be explicitly time-indexed to prevent feature leakage.
+Time Awareness
+All features must be computed at an explicit event time to prevent future data leakage.
 
-2. **Single Source of Truth**  
-   A feature is defined once and reused for both training and serving.
+Single Source of Truth
+A feature is defined once and reused everywhere — no duplicate logic.
 
-3. **Offline–Online Consistency**  
-   Offline and online feature computation must be derived from the same execution plan.
+Offline–Online Consistency
+Training and serving must be derived from the same feature definition.
 
-4. **Determinism**  
-   Given the same inputs and time context, feature computation must be deterministic.
+Determinism
+Given the same data and time context, feature computation must be reproducible.
 
-5. **Explicit Dependencies**  
-   Feature dependencies must be declared and resolved explicitly—never implicitly.
+Explicit Dependencies
+Feature dependencies must be declared and tracked — never implicit.
 
-These invariants are defined early to avoid accidental complexity later.
-
+These invariants are enforced starting from the lowest level of the system.
 ---
+## 🧩 What Is Implemented So Far (Foundation Phase)
 
-## 🏗️ Project Structure (Initial)
+The first phase builds the type system and registry of the feature store.
 
-```text
-astra_fs/
-├── frontend/     # Feature definitions and DSL (future)
-├── ir/           # Intermediate representation of feature graphs
-├── optimizer/    # Compiler-style optimization passes
-├── backends/     # Offline and online execution backends
-├── serving/      # Online serving engine
-├── docs/         # Design notes and invariants
-└── README.md
+This is the foundation that all future compiler, planner, and execution layers will rely on.
+
+Implemented Components
+core/feature.py
+
+Defines the Feature Language:
+
+FeatureMetadata
+
+Immutable schema of a feature
+
+Name, entity, value type, description, owner
+
+Acts like the type definition of a feature
+
+Feature
+
+Abstract base class for all features
+
+Enforces:
+
+Time-aware computation
+
+Type-safe output
+
+A single execution path for validation
+
+A feature in AstraFS is:
+
+A deterministic, typed function of raw data at a specific time.
+
+core/metadata.py
+
+Defines the Feature Registry & Versioning System:
+
+FeatureKey
+Uniquely identifies a feature as (name, entity)
+
+FeatureSpec
+Represents one version of a feature, including:
+
+Metadata
+
+Version
+
+Creation time
+
+Dependencies
+
+Active / deprecated state
+
+FeatureRegistry
+A global catalog that:
+
+Registers features
+
+Tracks versions
+
+Resolves the latest active definition
+
+Records feature dependencies
+
+This allows AstraFS to support:
+
+Safe feature evolution
+
+Reproducible training
+
+Dependency-aware compilation in later phases
+---
+## 📁 Current Project Structure
+```bash
+astrafs/
+├── core/
+│   ├── feature.py      # Feature type system
+│   └── metadata.py     # Feature registry & versioning
+│
+├── docs/               # Design notes and invariants (in progress)
+├── examples/           # Feature definitions (in progress)
+└── tests/              # Unit tests (in progress)
 ```
 
-This structure will evolve as the system matures.
+Only the foundation layer is implemented at this stage.
 
+## 🛣️ Roadmap
+
+Phase 1 — Feature Language & Registry
+
+Feature type system
+
+Feature metadata & immutability
+
+Feature registry & versioning
+
+Dependency tracking
+
+Phase 2 — Feature Compiler
+
+Feature AST
+
+Semantic analysis (type & time checking)
+
+Dependency graph construction
+
+Phase 3 — Planner & Execution
+
+Deterministic DAG planner
+
+Offline & online execution engines
+
+Guaranteed offline–online parity
 ---
+## 🎯 Long-Term Vision
 
-## 🛣️ Current Status
+AstraFS aims to become:
 
-**Foundation Phase (In Progress)**
+A compiler-aware feature store
 
-- Problem space defined
-- Core system invariants established
-- Project structure initialized
+A system with strong correctness guarantees
 
-Early development is focused on correctness and design clarity.
+A platform for exploring ML systems, compilers, and data infrastructure
 
+This is a systems engineering project, not a demo or notebook.
 ---
-
-## 🎯 Long-Term Goals
-
-**AstraFS aims to grow into:**
-
-- A compiler-aware feature store with optimization passes
-
-- A system with strong offline–online consistency guarantees
-
-- A learning vehicle for ML systems, compilers, and distributed data infrastructure
-
-This is a long-term, systems-focused project, not a demo.
-
----
-
-## 📌 Notes
-
-- Early versions will prioritize correctness over performance
-
-- Compiler concepts will be introduced gradually and only when justified
-
-- The project is intentionally built in public to document real design trade-offs
-
 ## 📖 Documentation
 
-- Design notes, invariants, and architectural decisions live in the docs/ directory.
+Design notes, invariants, and architectural reasoning live in the docs/ directory.
